@@ -32,6 +32,28 @@ class RGBA {
 
 }
 
+class ImageModel {
+    constructor(heightValue, widthValue, pixelGridValue) {
+        this.height = heightValue;
+        this.width = widthValue;
+
+        if(pixelGridValue) {
+            this.pixelGrid = pixelGridValue;
+        }
+        else {
+            this.pixelGrid = initializePixelGrid(heightValue);
+        }
+    }
+}
+
+//function initializePixelGrid(height) {
+//    var pixelGrid = [];
+//    for(var y = 0; y < height; y++) {
+//        pixelGrid[y] = [];
+//    }
+//    return pixelGrid;
+//}
+
 function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
@@ -98,6 +120,30 @@ function clipPixel(colour, range) {
 
 }
 
+function clip2(pixels,range) {
+    var all = pixels.data.length;
+    var data = pixels.data;
+
+    for (var i = 0; i < all; i += 4) {
+        var origRGBA = new RGBA(data[i], data[i+1], data[i+2], data[i+3]);
+        var modifiedRGBA = clipPixel2(origRGBA, range);
+        //console.log(modifiedRGBA);
+        setPixel(data, i, modifiedRGBA);
+    }
+
+}
+
+function clipPixel2(colour, range) {
+
+    var clippedAlpha= 255;
+
+    if((colour.red+colour.green+colour.blue)/3 < range) {
+        clippedAlpha = 0;
+    }
+    return new RGBA(colour.red, colour.green, colour.blue, clippedAlpha);
+
+}
+
 function noise(pixels) {
     //var pixels = ImageUtils.getPixels(img);
     var length = pixels.data.length;
@@ -124,11 +170,20 @@ var colour = new RGBA(59, 55,22,255);
 
 $(document).ready(function() {
     var img = new Image();
-    img.src = "img/kermit.jpg";
+    img.src = "img/enemy1.png";
     var pixels = ImageUtils.getPixels(img);
-
-    noise(pixels);
-
     console.log(pixels);
+    clip2(pixels,75);
+    console.log(pixels);
+    console.log("1");
     ImageUtils.putPixels(pixels, img.width, img.height);
+    console.log("1");
+
+    //var cat = ImageUtils.fromImgSrc("img/cat.jpg");
+    //ImageUtils.drawImageModel(cat);
+
+    //noise(pixels);
+    //
+    //console.log(pixels);
+    //ImageUtils.putPixels(pixels, img.width, img.height);
 });

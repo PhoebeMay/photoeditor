@@ -83,10 +83,19 @@ class ImageUtils {
 
 }
 
-function getRandomInt(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-}
+class ImageModel {
+    constructor(heightValue, widthValue, pixelGridValue) {
+        this.height = heightValue;
+        this.width = widthValue;
 
+        if(pixelGridValue) {
+            this.pixelGrid = pixelGridValue;
+        }
+        else {
+            this.pixelGrid = initializePixelGrid(heightValue);
+        }
+    }
+}
 
 class RGBA {
     constructor(redValue, greenValue, blueValue, alphaValue) {
@@ -97,13 +106,98 @@ class RGBA {
     }
 }
 
+function initializePixelGrid(height) {
+    var pixelGrid = [];
+    for(var y = 0; y < height; y++) {
+        pixelGrid[y] = [];
+    }
+    return pixelGrid;
+}
 
-// class definitions here
+function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function verticalMirror(imageModel) {
+
+    var mirrorImageModel = new ImageModel(imageModel.height, imageModel.width);
+
+    for (var y = 0; y<imageModel.height; y++){
+        for (var x = 0; x<imageModel.width/2; x++){
+            var mirroredIndex = imageModel.width -1 -x;
+            mirrorImageModel.pixelGrid[y][x] = imageModel.pixelGrid[y][mirroredIndex];
+            mirrorImageModel.pixelGrid[y][mirroredIndex] = imageModel.pixelGrid[y][x];
+        }
+    }
+    return mirrorImageModel;
+}
+
+function setPixel(data, i, colour) {
+    data[i] = colour.red;
+    data[i+1] = colour.green;
+    data[i+2] = colour.blue;
+    data[i+3] = colour.alpha;
+}
+
+function verticalMirror(imageModel) {
+
+    var mirrorImageModel = new ImageModel(imageModel.height, imageModel.width);
+
+    for (var y = 0; y<imageModel.height; y++){
+        for (var x = 0; x<imageModel.width; x++){
+            mirrorImageModel.pixelGrid[y][x] = imageModel.pixelGrid[y][mirroredIndex];
+        }
+    }
+    return mirrorImageModel;
+}
+
+
+function horizontalMirror(imageModel) {
+
+    var mirrorImageModel = new ImageModel(imageModel.height, imageModel.width);
+
+    for ( var x=0; x<imageModel.width;x++){
+        for (var y = 0; y<imageModel.height/2; y++){
+            var mirroredIndex = imageModel.height -1 - y;
+            mirrorImageModel.pixelGrid[y][x]= imageModel.pixelGrid[mirroredIndex][x];
+            mirrorImageModel.pixelGrid[mirroredIndex][x]= imageModel.pixelGrid[y][x];
+        }
+    }
+    return mirrorImageModel;
+
+    //for ( var x=0; x<imageModel.width;x++){
+    //    for (var y = 0; y<imageModel.height/2; y++){
+    //        var mirroredIndex = imageModel.height -1 - y;
+    //        ImageModel.pixelGrid[y][x]= imageModel.pixelGrid[mirroredIndex][x];
+    //        ImageModel.pixelGrid[mirroredIndex][x]= imageModel.pixelGrid[y][x];
+    //    }
+    //}
+}
+
+function grayscale(imageModel) {
+
+    var grayscaleImageModel = new ImageModel(imageModel.height, imageModel.width);
+
+    for (var y = 0; y < imageModel.height; y++) {
+        for (var x = 0; x < imageModel.width; x++) {
+            var rgba = imageModel.pixelGrid[y][x];
+            var average = (rgba.red + rgba.green + rgba.blue) / 3;
+            grayscaleImageModel.pixelGrid[y][x] =
+                new RGBA(average, average, average, rgba.alpha);
+        }
+    }
+    return grayscaleImageModel;
+}
+
+//var imageModel = new ImageModel(300, 400);
+//
+//console.log(imageModel);
 
 $(document).ready(function() {
-    var img = new Image();
-    img.src = "img/cat.jpg";
-
-
-
+    //var img = new Image();
+    //img.src = "img/cat.jpg";
+    var kermit = ImageUtils.fromImgSrc("img/kermit.jpg");
+    ImageUtils.drawImageModel(grayscale(
+                                verticalMirror
+                                (horizontalMirror(kermit))));
 });
